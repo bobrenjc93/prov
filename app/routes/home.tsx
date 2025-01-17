@@ -243,9 +243,18 @@ export default function Home() {
       </div>
 
       <div className="flex-1 overflow-auto p-4">
-        {filteredExpressions.map(expr => 
-          renderExpressionTrie(expr, expressionMap, argumentMap)
-        )}
+        {filteredExpressions
+          .sort((a, b) => {
+            // Count operators and operands as a simple complexity measure
+            const countComplexity = (expr: string) => {
+              return (expr.match(/[+\-*/><=]/g) || []).length + 
+                     (expr.match(/\w+/g) || []).length;
+            };
+            return countComplexity(b) - countComplexity(a);
+          })
+          .map(expr => 
+            renderExpressionTrie(expr, expressionMap, argumentMap)
+          )}
       </div>
     </div>
   );
