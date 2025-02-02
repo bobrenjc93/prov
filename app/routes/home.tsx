@@ -24,7 +24,7 @@ export function meta() {
   return [
     { title: "Expression Provenance Viewer" },
     {
-      name: "description", 
+      name: "description",
       content: "Visualize expression provenance and stack traces"
     },
   ];
@@ -36,16 +36,29 @@ export default function Home() {
   const [provenanceData, setProvenanceData] = useState<ProvenanceEntry[]>(EXAMPLE_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [dialogOpen, setDialogOpen] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [dataInput, setDataInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  console.log(JSON.stringify(provenanceData))
+
   useEffect(() => {
     const loadData = async () => {
-      if (!FLAG) {
-        return;
+      const urlParams = new URLSearchParams(window.location.search);
+      const url = urlParams.get('url');
+      if (url) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            const jsonData = await response.json();
+            setProvenanceData(jsonData);
+          }
+        } catch (error) {
+          console.error("Error loading data from URL:", error);
+        }
+      } else if (FLAG) {
+        setDialogOpen(true);
       }
-      setDialogOpen(true);
     };
     loadData();
   }, []);
@@ -57,7 +70,7 @@ export default function Home() {
 
     entries.forEach(entry => {
       expressionMap.set(entry.result, entry);
-      
+
       // Track dependencies (results that depend on this result)
       entry.arguments.forEach(arg => {
         if (!dependencyMap.has(arg)) {
@@ -175,7 +188,7 @@ export default function Home() {
     );
   }
 
-  const filteredExpressions = searchTerm 
+  const filteredExpressions = searchTerm
     ? Array.from(expressionMap.keys()).filter(expr => expr.toLowerCase().includes(searchTerm.toLowerCase()))
     : Array.from(expressionMap.keys());
 
@@ -221,12 +234,12 @@ export default function Home() {
           .sort((a, b) => {
             // Count operators and operands as a simple complexity measure
             const countComplexity = (expr: string) => {
-              return (expr.match(/[+\-*/><=]/g) || []).length + 
+              return (expr.match(/[+\-*/><=]/g) || []).length +
                      (expr.match(/\w+/g) || []).length;
             };
             return countComplexity(b) - countComplexity(a);
           })
-          .map(expr => 
+          .map(expr =>
             renderExpressionTrie(expr, expressionMap, argumentMap)
           )}
       </div>
