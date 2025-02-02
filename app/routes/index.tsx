@@ -1,7 +1,6 @@
-import { useEffect } from "react";
+import Home from "./home";
 
-export default function Home() {
-    useEffect(() => {
-        window.location.href = '/home';
-    }, []);
+export default function Index() {
+    return <Home />
 }
+
