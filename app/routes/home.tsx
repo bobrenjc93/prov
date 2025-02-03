@@ -47,6 +47,7 @@ export default function Home() {
       const urlParams = new URLSearchParams(window.location.search);
       const url = urlParams.get('url');
       if (url) {
+        setIsLoading(true);
         try {
           const response = await fetch(url);
           if (response.ok) {
@@ -55,6 +56,8 @@ export default function Home() {
           }
         } catch (error) {
           console.error("Error loading data from URL:", error);
+        } finally {
+          setIsLoading(false);
         }
       } else if (FLAG) {
         setDialogOpen(true);
@@ -183,7 +186,7 @@ export default function Home() {
     return (
       <div className="h-screen flex flex-col gap-4 items-center justify-center">
         <Progress value={progress} className="w-[60%]" />
-        <p className="text-sm text-muted-foreground">Loading provenance data...</p>
+        <p className="text-sm text-muted-foreground">Loading files...</p>
       </div>
     );
   }
